@@ -45,3 +45,8 @@ Content-Type: application/json
     "novaDataPrevista": "2025-02-21",
     "novoStatus": "entregue"
 }
+
+### Teste de exclusão pelo id
+DELETE http://localhost:3000/entregas/1
+Content-Type: application/json
+
