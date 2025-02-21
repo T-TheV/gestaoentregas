@@ -5,8 +5,7 @@ dotenv.config()
 
 app.use(express.json())
 const porta = process.env.PORTA
-//sets
-app.set('view engine', 'ejs');
+
 
 
 
