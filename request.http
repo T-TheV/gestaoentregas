@@ -7,7 +7,7 @@ Content-Type: application/json
 POST http://localhost:3000/entregas
 Content-Type: application/json
 
-{ id, remetente, destinatario, enderecoDestino, dataPrevista, status
+{ 
   "id": "1",
   "remetente": "Senac Centro",
   "destinatario": "Senac Alecrim",
