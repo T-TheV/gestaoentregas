@@ -92,7 +92,7 @@ app.put('/entregas/:id', (req, res) => {
   try {
     // Pegando o id da rota
     const id = req.params.id;
-    const { novoTitulo, novoAutor, novoAnoPublicacao, novoGenero, novaSinopse } = req.body;
+    const { novoRemetente, novoDestinatario, novoEnderecoDestino, novaDataPrevista, novoStatus} = req.body;
 
     // Busca o entrega com o id fornecido
     const entrega = entregas.find(elemento => elemento.id === parseInt(id)); // Usando parseInt(id) para garantir que seja tratado como número
