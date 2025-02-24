@@ -1,142 +1,161 @@
-const express = require('express')
-const app = express()
-const dotenv = require('dotenv')
+// Importa o módulo Express
+const express = require('express');
+const dotenv = require('dotenv');
+
+// Configurando a env
 dotenv.config()
 
-app.use(express.json())
+// Cria uma instância do Express
+const app = express();
+
+// Define a porta em que o servidor irá rodar
 const porta = process.env.PORTA
 
+// Middleware para interpretar JSON no corpo das requisições
+app.use(express.json());
 
+// Array que armazenará os livros (em memória)
+const livros = [];
 
-
-//Métodos Get para renderizar as páginas
-app.get('/', (req, res) => {
-  res.render('index');
-})
-
-// app.get('/home', (req, res) => {
-//   res.render('homeCliente');
-// })
-
-// app.get('/admin', (req, res) => {
-//   res.render('homeAdmin');
-// })
-
-const entregas = []
-
-app.get('/entregas', async (req, res) => {
+/*
+  Endpoint GET para recuperar todos os livros.
+  Ao acessar a rota GET /livros, o servidor retorna o array de livros.
+*/
+app.get('/livros', (req, res) => {
   try {
-      if (entregas.length === 0) 
-          {
-        return res.status(200).json({ msg: "Não há entregas a serem feitas!" })
-      }
-      res.status(200).json(entregas);
-  } catch (error) {
-      res.status(500).json(
-          {
-            msg: "Erro ao buscar entregas!",
-            erro: error.message
-          })
+    if (livros.length === 0) {
+      return res.status(200).json({ msg: "Não há livros a serem exibidos!" })
+    }
+    res.status(200).json(livros);
   }
+  catch (error) {
+    res.status(500).json(
+      {
+        msg: "Erro ao buscar livros!",
+        erro: error.message
+      })
+  }
+
 });
 
-//Metodo GET pelo id:
-app.get('/entregas/:id', (req, res) => {
+//pelo id:
+app.get('/livros/:id', (req, res) => {
   try {
     const id = req.params.id;
-    const entrega = entregas.find(elemento => elemento.id === id)
-    
-    if(!entrega){
-      return res.status(404).json({msg:"entrega não encontrado!"})
+    const livro = livros.find(elemento => elemento.id === id)
+
+    if (!livro) {
+      return res.status(404).json({ msg: "Livro não encontrado!" })
     }
-    
-  res.status(200).json(entrega);
-  } 
+
+    res.status(200).json(livro);
+  }
   catch (error) {
-  res.status(500).json(
-    {
-      msg: "Erro ao buscar entrega!",
-      erro: error.message
-  })
+    res.status(500).json(
+      {
+        msg: "Erro ao buscar livro!",
+        erro: error.message
+      })
   }
 
 });
 
-//Metodos POST pra enviar dados
-app.post('/entregas', (req, res) => {
+/*
+  Endpoint POST para cadastrar um novo livro.
+  Os dados devem incluir os campos obrigatórios:
+  id, titulo, autor, anoPublicacao, genero e sinopse.
+*/
+app.post('/livros', (req, res) => {
   // Extrai os dados do corpo da requisição
   try {
-    const { id, remetente, destinatario, enderecoDestino, dataPrevista, status } = req.body;
+    const { id, titulo, autor, anoPublicacao, genero, sinopse } = req.body;
 
     // Validação para verificar se todos os campos obrigatórios foram enviados
-    if (!id || !remetente || !destinatario || !enderecoDestino || !dataPrevista || !status) {
+    if (!id || !titulo || !autor || !anoPublicacao || !genero || !sinopse) {
       return res.status(400).json({
-        error: 'Dados incompletos! Os campos id, remetente, destinatario, enderecoDestino, dataPrevista, status são obrigatórios.'
+        error: 'Dados incompletos! Os campos id, titulo, autor, anoPublicacao, genero e sinopse são obrigatórios.'
       });
     }
-    const novaEntrega = { id, remetente, destinatario, enderecoDestino, dataPrevista, status };
-    entregas.push(novaEntrega);
-    return res.status(201).json(novaEntrega);
+    const novoLivro = { id, titulo, autor, anoPublicacao, genero, sinopse };
+    livros.push(novoLivro);
+    return res.status(201).json(novoLivro);
   }
   catch (error) {
     res.status(500).json
-      ({ error: "Erro ao cadastrar entrega!",
-        error: error.message
-       })
+      ({ error: "Erro ao cadastrar livros!" })
   }
 });
 
-// Rota para editar a entrega
-app.put('/entregas/:id', (req, res) => {
+
+// Rota para editar o livro
+// http://localhost:3000/livros/1
+// Rota para editar o livro
+app.put('/livros/:id', (req, res) => {
   try {
     // Pegando o id da rota
     const id = req.params.id;
-    const { novoRemetente, novoDestinatario, novoEnderecoDestino, novaDataPrevista, novoStatus} = req.body;
+    const { novoTitulo, novoAutor, novoAnoPublicacao, novoGenero, novaSinopse } = req.body;
 
-    // Busca o entrega com o id fornecido
-    const entrega = entregas.find(elemento => elemento.id === parseInt(id)); // Usando parseInt(id) para garantir que seja tratado como número
+    // Busca o livro com o id fornecido
+    const livro = livros.find(elemento => elemento.id === id); // Usando parseIntid para garantir que seja tratado como número
 
-    // Se o entrega não for encontrado
-    if (!id){
-      return res.status(404).json({error: "Informe um parâmetro"})
+    // Se o livro não for encontrado
+    if (!id) {
+      return res.status(404).json({ error: "Informe um parâmetro" })
     }
-    if (!entrega) {
-      return res.status(404).json({ error: "entrega não encontrada!" });
+    if (!livro) {
+      return res.status(404).json({ error: "Livro não encontrado!" });
     }
-    if (entrega) {
-          // Atualiza os dados do entrega
-    entrega.remetente = novoRemetente || entrega.remetente;
-    entrega.destinatario = novoDestinatario || entrega.destinatario;
-    entrega.enderecoDestino = novoEnderecoDestino || entrega.enderecoDestino;
-    entrega.dataPrevista = novaDataPrevista || entrega.dataPrevista;
-    entrega.status = novoStatus || entrega.status;
-    
-      // Retorna o entrega atualizado
-      return res.status(200).json({msg: 'entrega atualizado com sucesso!'});
-      
+    if (livro) {
+      // Atualiza os dados do livro
+      livro.titulo = novoTitulo || livro.titulo;
+      livro.autor = novoAutor || livro.autor;
+      livro.anoPublicacao = novoAnoPublicacao || livro.anoPublicacao;
+      livro.genero = novoGenero || livro.genero;
+      livro.sinopse = novaSinopse || livro.sinopse;
+
+      // Retorna o livro atualizado
+      return res.status(200).json({ msg: 'Livro atualizado com sucesso!' });
+
     }
 
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao atualizar entrega!" });
+    return res.status(500).json({ error: "Erro ao atualizar livro!" });
   }
 });
 
-//Metodo DELETE para deletar entregas
-
-app.delete("/entregas/:id", (req,res) => {
+app.delete("/livros", (req, res) => {
   try {
-  const id = req.params.id;
-  const entrega = entregas.findIndex(elemento => elemento.id === parseInt(id))
-  if(entrega === -1){
-    entregas.splice(index, 1)
-    return res.status(404).json({msg: "entrega não encontrada!"})
-  }} 
+    livros.length = 0;
+    res.status(200).json({ mensagem: 'Tudo deletado!' })
+  } catch (error) {
+    res.status(500).json({ msg: "Erro ao deletar tudo!" })
+  }
+})
+
+app.delete("/livros/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    const index = livros.findIndex(elemento => elemento.id === id)
+    if (index === -1) {
+      return res.status(404).json({ msg: "Livro não encontrado!" })
+    }
+    livros.splice(index, 1)
+    res.status(200).json({ mensagem: "Livro deletado com sucesso!" })
+  }
   catch (error) {
-    res.status(500).json({msg:"Erro ao deletar o parametro do banco de dados!"})
+    res.status(500).json(
+      { msg: "Erro ao deletar o parametro do banco de dados!" ,
+        erro: error.message}
+      )
   }
 })
 
 
+
+
+
+// Inicia o servidor
 app.listen(porta, () => {
-  console.log(`App de exemplo esta rodando em http://localhost:${porta}, acesse: http://localhost:${porta}`)
-})
+  console.log(`Servidor rodando na porta ${porta}, acesse: http://localhost:${porta}`);
+});
