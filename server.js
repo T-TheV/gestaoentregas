@@ -1,7 +1,7 @@
 // Importa o módulo Express
 const express = require('express');
 // Importa o módulo de banco de dados
-const { pool } = require('../catalogoLivros/src/config/database');
+const { pool } = require('../gestaoentregas/src/config/database');
 // Importa o módulo dotenv
 const dotenv = require('dotenv');
 
@@ -21,40 +21,38 @@ app.use(express.json());
  * ROTAS GET
  ************************/
 
-// Endpoint GET para recuperar todos os livros.
-app.get('/livros', async (req, res) => {
+// Endpoint GET para recuperar todas as entregas.
+app.get('/entregas', async (req, res) => {
   try {
-    const consultaLivros = `SELECT * FROM livros`;
-    const livros = await pool.query(consultaLivros);
-    if (livros.rows.length === 0) {
-      return res.status(200).json({ msg: "Não há livros a serem exibidos!" });
+    const consultaEntregas = `SELECT * FROM entregas`;
+    const entregas = await pool.query(consultaEntregas);
+    if (entregas.rows.length === 0) {
+      return res.status(200).json({ msg: "Não há entregas para exibir!" });
     }
-    res.status(200).json(livros.rows);
-  }
-  catch (erro) {
+    res.status(200).json(entregas.rows);
+  } catch (erro) {
     res.status(500).json({
-      msg: "Erro ao buscar livros!",
+      msg: "Erro ao buscar entregas!",
       erro: erro.message
     });
   }
 });
 
-// Endpoint GET para recuperar um livro específico pelo id
-app.get('/livros/:id', async (req, res) => {
+// Endpoint GET para recuperar uma entrega específica pelo id
+app.get('/entregas/:id', async (req, res) => {
   try {
-    const idLivro = req.params.id;
-    const consultaLivro = `SELECT * FROM livros WHERE id = $1`;
-    const resultado = await pool.query(consultaLivro, [idLivro]);
+    const idEntrega = req.params.id;
+    const consultaEntrega = `SELECT * FROM entregas WHERE id = $1`;
+    const resultado = await pool.query(consultaEntrega, [idEntrega]);
 
     if (resultado.rows.length === 0) {
-      return res.status(404).json({ msg: "Livro não encontrado!" });
+      return res.status(404).json({ msg: "Entrega não encontrada!" });
     }
 
     res.status(200).json(resultado.rows[0]);
-  }
-  catch (erro) {
+  } catch (erro) {
     res.status(500).json({
-      msg: "Erro ao buscar livro!",
+      msg: "Erro ao buscar entrega!",
       erro: erro.message
     });
   }
@@ -64,27 +62,26 @@ app.get('/livros/:id', async (req, res) => {
  * ROTAS POST
  ************************/
 
-// Endpoint POST para cadastrar um novo livro.
-app.post('/livros', async (req, res) => {
+// Endpoint POST para cadastrar uma nova entrega.
+app.post('/entregas', async (req, res) => {
   try {
-    const { titulo, autor, anoPublicacao, genero, sinopse } = req.body;
+    const { remetente, destinatario, endereco_destino, data_prevista_entrega } = req.body;
 
-    // Validação para verificar se todos os campos obrigatórios foram enviados
-    if (!titulo || !autor || !anoPublicacao || !genero || !sinopse) {
+    // Validação para garantir que os campos obrigatórios foram preenchidos
+    if (!remetente || !destinatario || !endereco_destino || !data_prevista_entrega) {
       return res.status(400).json({
-        error: 'Dados incompletos! Os campos titulo, autor, anoPublicacao, genero e sinopse são obrigatórios.'
+        error: 'Dados incompletos! Os campos remetente, destinatario, endereco_destino e data_prevista_entrega são obrigatórios.'
       });
     }
 
-    const novoLivro = [titulo, autor, anoPublicacao, genero, sinopse];
-    const consultaInserirLivro = `INSERT INTO livros (titulo, autor, anoPublicacao, genero, sinopse) 
-                                 VALUES ($1, $2, $3, $4, $5) RETURNING *`;
-    await pool.query(consultaInserirLivro, novoLivro);
+    const novaEntrega = [remetente, destinatario, endereco_destino, data_prevista_entrega];
+    const consultaInserirEntrega = `INSERT INTO entregas (remetente, destinatario, endereco_destino, data_prevista_entrega) 
+                                   VALUES ($1, $2, $3, $4) RETURNING *`;
+    await pool.query(consultaInserirEntrega, novaEntrega);
 
-    return res.status(201).json({ msg: "Livro criado com sucesso!" });
-  }
-  catch (erro) {
-    res.status(500).json({ msg: "Erro ao cadastrar livro!", error: erro.message });
+    return res.status(201).json({ msg: "Entrega criada com sucesso!" });
+  } catch (erro) {
+    res.status(500).json({ msg: "Erro ao cadastrar entrega!", error: erro.message });
   }
 });
 
@@ -92,31 +89,30 @@ app.post('/livros', async (req, res) => {
  * ROTAS PUT
  ************************/
 
-// Endpoint PUT para editar um livro existente
-app.put('/livros/:id', async (req, res) => {
+// Endpoint PUT para editar uma entrega existente
+app.put('/entregas/:id', async (req, res) => {
   try {
-    const idLivro = req.params.id;
-    const { novoTitulo, novoAutor, novoAnoPublicacao, novoGenero, novaSinopse } = req.body;
+    const idEntrega = req.params.id;
+    const { novoRemetente, novoDestinatario, novoEnderecoDestino, novaDataPrevistaEntrega } = req.body;
 
-    const consultaLivroExistente = `SELECT * FROM livros WHERE id = $1`;
-    const resultado = await pool.query(consultaLivroExistente, [idLivro]);
+    const consultaEntregaExistente = `SELECT * FROM entregas WHERE id = $1`;
+    const resultado = await pool.query(consultaEntregaExistente, [idEntrega]);
 
     if (resultado.rows.length === 0) {
-      return res.status(404).json({ error: "Livro não encontrado!" });
+      return res.status(404).json({ error: "Entrega não encontrada!" });
     }
 
-    const dadosAtualizados = [idLivro, novoTitulo, novoAutor, novoAnoPublicacao, novoGenero, novaSinopse];
-    const consultaAtualizarLivro = `
-      UPDATE livros 
-      SET titulo = $2, autor = $3, anoPublicacao = $4, genero = $5, sinopse = $6 
+    const dadosAtualizados = [idEntrega, novoRemetente, novoDestinatario, novoEnderecoDestino, novaDataPrevistaEntrega];
+    const consultaAtualizarEntrega = `
+      UPDATE entregas 
+      SET remetente = $2, destinatario = $3, endereco_destino = $4, data_prevista_entrega = $5 
       WHERE id = $1 
       RETURNING *`;
-    await pool.query(consultaAtualizarLivro, dadosAtualizados);
+    await pool.query(consultaAtualizarEntrega, dadosAtualizados);
 
-    return res.status(200).json({ msg: 'Livro atualizado com sucesso!' });
-  }
-  catch (erro) {
-    return res.status(500).json({ error: "Erro ao atualizar livro!" });
+    return res.status(200).json({ msg: 'Entrega atualizada com sucesso!' });
+  } catch (erro) {
+    return res.status(500).json({ error: "Erro ao atualizar entrega!" });
   }
 });
 
@@ -124,36 +120,35 @@ app.put('/livros/:id', async (req, res) => {
  * ROTAS DELETE
  ************************/
 
-// Endpoint DELETE para deletar todos os livros
-app.delete("/livros", async (req, res) => {
+// Endpoint DELETE para deletar todos as entregas
+app.delete("/entregas", async (req, res) => {
   try {
-    const consultaDeletarTodos = `DELETE FROM livros`;
+    const consultaDeletarTodos = `DELETE FROM entregas`;
     await pool.query(consultaDeletarTodos);
-    res.status(200).json({ mensagem: 'Todos os livros foram deletados!' });
+    res.status(200).json({ mensagem: 'Todas as entregas foram deletadas!' });
   } catch (erro) {
-    res.status(500).json({ msg: "Erro ao deletar livros!" });
+    res.status(500).json({ msg: "Erro ao deletar entregas!" });
   }
 });
 
-// Endpoint DELETE para deletar um livro específico pelo id
-app.delete("/livros/:id", async (req, res) => {
+// Endpoint DELETE para deletar uma entrega específica pelo id
+app.delete("/entregas/:id", async (req, res) => {
   try {
-    const idLivro = req.params.id;
-    const consultaLivroExistente = `SELECT * FROM livros WHERE id = $1`;
-    const resultadoId = await pool.query(consultaLivroExistente, [idLivro]);
+    const idEntrega = req.params.id;
+    const consultaEntregaExistente = `SELECT * FROM entregas WHERE id = $1`;
+    const resultadoId = await pool.query(consultaEntregaExistente, [idEntrega]);
 
     if (resultadoId.rows.length === 0) {
-      return res.status(404).json({ msg: "Livro não encontrado!" });
+      return res.status(404).json({ msg: "Entrega não encontrada!" });
     }
 
-    const consultaDeletarLivro = `DELETE FROM livros WHERE id = $1`;
-    await pool.query(consultaDeletarLivro, [idLivro]);
+    const consultaDeletarEntrega = `DELETE FROM entregas WHERE id = $1`;
+    await pool.query(consultaDeletarEntrega, [idEntrega]);
 
-    res.status(200).json({ mensagem: "Livro deletado com sucesso!" });
-  }
-  catch (erro) {
+    res.status(200).json({ mensagem: "Entrega deletada com sucesso!" });
+  } catch (erro) {
     res.status(500).json({
-      msg: "Erro ao deletar o livro do banco de dados!",
+      msg: "Erro ao deletar a entrega!",
       erro: erro.message
     });
   }

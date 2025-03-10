@@ -1,48 +1,44 @@
-### Teste do endpoint GET para listar todos os livros
-GET http://localhost:3000/livros
+### Teste do endpoint GET para listar todas as entregas
+GET http://localhost:3000/entregas
 Content-Type: application/json
+###
 
-
-### Teste do endpoint POST para cadastrar um novo livro
-POST http://localhost:3000/livros
-Content-Type: application/json
-
-{ 
-  "titulo": "Harry-Potter e a Pedra Filosofal",
-  "autor": "J.K. Rowling",
-  "anoPublicacao": "1997-12-16",
-  "genero": "Fantasia",
-  "sinopse": "A história de um jovem bruxo que descobre seu destino em uma escola de magia."
-}
-
-
-
-### Teste de recuperação de livro por id
-GET http://localhost:3000/livros/3
-Content-Type: application/json
-
-
-
-### Teste de atualização de livro pelo id
-PUT http://localhost:3000/livros/3
+### Cadastrar nova entrega
+POST http://localhost:3000/entregas
 Content-Type: application/json
 
 {
-  "novoTitulo": "O Senhor dos Anéis: A Sociedade do Anel",
-  "novoAutor": "J.R.R. Tolkien",
-  "novoAnoPublicacao": "1954-12-23",
-  "novoGenero": "Fantasia",
-  "novaSinopse": "Acompanhe a jornada de um hobbit e seus amigos para destruir um anel mágico."
+  "remetente": "João Silva",
+  "destinatario": "Maria Oliveira",
+  "endereco_destino": "Rua das Flores, 123, São Paulo",
+  "data_prevista_entrega": "2025-03-15"
 }
 
+###
 
+### Teste de recuperação de livro por id
+GET http://localhost:3000/entregas/1
+Content-Type: application/json
+###
+
+### Teste de atualização de livro pelo id
+PUT http://localhost:3000/entregas/1
+Content-Type: application/json
+
+{
+  "novoRemetente": "Carlos Pereira",
+  "novoDestinatario": "Fernanda Souza",
+  "novoEnderecoDestino": "Av. Brasil, 456, Rio de Janeiro",
+  "novaDataPrevistaEntrega": "2025-03-16"
+}
+###
 
 ### Teste de exclusão de livro pelo id
-DELETE http://localhost:3000/livros/1
+DELETE http://localhost:3000/entregas/1
 Content-Type: application/json
-
-
+###
 
 ### Teste de exclusão de todos os livros
-DELETE http://localhost:3000/livros
+DELETE http://localhost:3000/entregas
 Content-Type: application/json
+###
