@@ -80,9 +80,7 @@ app.post('/entregas', (req, res) => {
   }
   catch (error) {
     res.status(500).json
-      ({ error: "Erro ao cadastrar entrega!",
-        error: error.message
-       })
+      ({ error: `Erro ao cadastrar entrega: ${error.message}`})
   }
 });
 
@@ -94,7 +92,7 @@ app.put('/entregas/:id', (req, res) => {
     const { novoRemetente, novoDestinatario, novoEnderecoDestino, novaDataPrevista, novoStatus} = req.body;
 
     // Busca o entrega com o id fornecido
-    const entrega = entregas.find(elemento => elemento.id === parseInt(id)); // Usando parseInt(id) para garantir que seja tratado como número
+    const entrega = entregas.find(elemento => elemento.id === id); // Usando parseInt(id) para garantir que seja tratado como número
 
     // Se o entrega não for encontrado
     if (!id){
@@ -126,11 +124,13 @@ app.put('/entregas/:id', (req, res) => {
 app.delete("/entregas/:id", (req,res) => {
   try {
   const id = req.params.id;
-  const entrega = entregas.findIndex(elemento => elemento.id === parseInt(id))
+  const entrega = entregas.findIndex(elemento => elemento.id === id)
   if(entrega === -1){
-    entregas.splice(index, 1)
     return res.status(404).json({msg: "entrega não encontrada!"})
-  }} 
+  }
+  entregas.splice(entrega, 1)
+  return res.status(200).json({msg: "entrega deletada com sucesso!"});
+} 
   catch (error) {
     res.status(500).json({msg:"Erro ao deletar o parametro do banco de dados!"})
   }

@@ -39,8 +39,8 @@ Content-Type: application/json
 
 {
     "id": "1",
-    "novoRemetente": "Senac Centro",
-    "novoDestinatario": "Senac Alecrim",
+    "novoRemetente": "Senac Alecrim",
+    "novoDestinatario": "Senac Centro",
     "novoEnderecoDestino": "Rua 1, nº 1",
     "novaDataPrevista": "2025-02-21",
     "novoStatus": "entregue"
