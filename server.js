@@ -1,6 +1,6 @@
 const express = require("express"); // Importar o express
 const dotenv = require("dotenv"); // Importar o dotenv
-const alunoRoutes = require('./src/modules/entrega/routes/entregaRoute'); // Importar as rotas do módulo aluno
+const entregaRoute = require('./src/modules/entrega/routes/entregaRoute'); // Importar as rotas do módulo aluno
 
 dotenv.config(); // Carregar as variáveis de ambiente
 
@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 // Registrar as rotas do módulo aluno
-app.use(alunoRoutes);
+app.use(entregaRoute);
 
 // Middleware para tratar rotas inexistentes
 app.use((req, res) => {
