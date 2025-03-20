@@ -34,6 +34,7 @@ Cada entrega deve conter as seguintes informações:
 | **ID**                   | Identificador único da entrega                                     |
 | **Remetente**            | Nome da pessoa ou empresa que solicitou a entrega                 |
 | **Destinatário**         | Nome da pessoa que receberá a encomenda                           |
+| **Endereço de Coleta**  | Local onde a entrega deve ser coletada                           |
 | **Endereço de Destino**  | Local onde a entrega deve ser realizada                           |
 | **Data Prevista de Entrega** | Data e hora para a entrega ser realizada                     |
 | **Status**               | Estado atual da entrega (ex: "coletado", "em trânsito", "entregue") |
