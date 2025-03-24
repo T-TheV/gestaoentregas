@@ -1,82 +1,100 @@
-import entregaModel from '../models/entregaModel';
+const entregaModel = require('../models/entregaModel.js');
 
-class entregaController {
-    static async criarEntrega(req, res) {
+const entregaController = {
+    async criarEntrega(req, res) {
         try {
-            const { Id, Remetente, Destinatario, EnderecoColeta, EnderecoDestino, DataPrevistaEntrega, Status } = req.body;
-            if (!Id || !Remetente || !Destinatario || !EnderecoColeta || !EnderecoDestino || !DataPrevistaEntrega || !Status) {
+            const { remetente, destinatario, enderecoColeta, enderecoDestino, dataPrevistaEntrega, status } = req.body;
+            if ( !remetente || !destinatario || !enderecoColeta || !enderecoDestino || !dataPrevistaEntrega || !status) {
                 return res.status(400).json({ sucesso: 'alert', mensagem: 'Todos os campos são obrigatórios' });
             }
 
+            const novaEntrega = await entregaModel.criar(remetente, destinatario, enderecoColeta, enderecoDestino, dataPrevistaEntrega, status);
             res.status(201).json({ sucesso: 'true', mensagem: 'Entrega criada com sucesso', entrega: novaEntrega });
-            const novaEntrega = await entregaModel.criar(Id, Remetente, Destinatario, EnderecoColeta, EnderecoDestino, DataPrevistaEntrega, Status);
-            resposta.status(201).json({ sucesso: 'true', mensagem: 'Entrega criada com sucesso', entrega: novaEntrega });
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao criar entrega', erro: error.message });
         }
-    }
-    static async editarEntrega(req, res) {
+    },
+
+    async editarEntrega(req, res) {
         try {
-            const id = req.params.id; // usado para buscar a entrega
-            const { Remetente, Destinatario, EnderecoColeta, EnderecoDestino, DataPrevistaEntrega, Status } = req.body; // usado para atualizar a entrega pelo corpo da requisição
-            if (!Remetente || !Destinatario || !EnderecoColeta || !EnderecoDestino || !DataPrevistaEntrega || !Status) { // verifica se todos os campos foram preenchidos
+            const id = req.params.id;
+            const { remetente, destinatario, enderecoColeta, enderecoDestino, dataPrevistaEntrega, status } = req.body;
+            if (!remetente || !destinatario || !enderecoColeta || !enderecoDestino || !dataPrevistaEntrega || !status) {
                 return res.status(400).json({ sucesso: 'alert', mensagem: 'Todos os campos são obrigatórios' });
             }
-            const entregaAtualizada = await entregaModel.editar(id, Remetente, Destinatario, EnderecoColeta, EnderecoDestino, DataPrevistaEntrega, Status); // atualiza a entrega no banco de dados
-            if (!entregaAtualizada) { // verifica se a entrega foi atualizada
-                res.status(200).json({ sucesso: 'true', mensagem: 'Entrega atualizada com sucesso', entrega: entregaAtualizada });
+
+            const entregaAtualizada = await entregaModel.editar(id, remetente, destinatario, enderecoColeta, enderecoDestino, dataPrevistaEntrega, status);
+            if (!entregaAtualizada) {
+                return res.status(404).json({ sucesso: 'false', mensagem: 'Entrega não encontrada' });
             }
+
+            res.status(200).json({ sucesso: 'true', mensagem: 'Entrega atualizada com sucesso', entrega: entregaAtualizada });
+
         } catch (error) {
             res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao atualizar entrega', erro: error.message });
         }
-        }
-        static async listarEntregas(req, res) {
+    },
+
+    async listarEntregas(req, res) {
         try {
-            const entregas = await entregaModel.listar(); // busca todas as entregas no banco de dados
-            if(entregas.lenght === 0){ // verifica se existem entregas
-                return res.status(400).json({ sucesso: 'alert', mensagem: 'Nenhuma entrega encontrada' });
+            const entregas = await entregaModel.listar();
+            if (entregas.length === 0) { 
+                return res.status(404).json({ sucesso: 'alert', mensagem: 'Nenhuma entrega encontrada' });
             }
-            res.status(200).json({ sucesso: 'true', mensagem: 'Entregas listadas com sucesso', entregas: entregas });
+
+            res.status(200).json({ sucesso: 'true', mensagem: 'Entregas listadas com sucesso', entregas });
+
         } catch (error) {
             res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao listar entregas', erro: error.message });
         }
-    }   
-        static async buscarEntrega(req, res) {
-            try {
-                const id = req.params.id; // usado para buscar a entrega
-                const entrega = await entregaModel.buscarPorId(id); // busca a entrega no banco de dados
-                if (!entrega) { // verifica se a entrega foi encontrada
-                    return res.status(400).json({ sucesso: 'alert', mensagem: 'Entrega não encontrada' });
-                }
-                res.status(200).json({ sucesso: 'true', mensagem: 'Entrega encontrada com sucesso', entrega: entrega });
-            } catch (error) {
-                res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao buscar entrega', erro: error.message });
+    },
+
+    async buscarEntrega(req, res) {
+        try {
+            const id = req.params.id;
+            const entrega = await entregaModel.buscarPorId(id);
+            if (!entrega) {
+                return res.status(404).json({ sucesso: 'alert', mensagem: 'Entrega não encontrada' });
             }
+
+            res.status(200).json({ sucesso: 'true', mensagem: 'Entrega encontrada com sucesso', entrega });
+
+        } catch (error) {
+            res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao buscar entrega', erro: error.message });
         }
-        static async excluirEntrega(req, res) {
-            try {
-                const id = req.params.id; // usado para buscar a entrega
-                const entrega = await entregaModel.excluirEntrega(id); // exclui a entrega no banco de dados
-                if (!entrega) { // verifica se a entrega foi excluída
-                    return res.status(400).json({ sucesso: 'alert', mensagem: 'Entrega não encontrada' });
-                }
-                res.status(200).json({ sucesso: 'true', mensagem: 'Entrega excluída com sucesso', entrega: entrega });
-            } catch (error) {
-                res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao excluir entrega', erro: error.message });
+    },
+
+    async excluirEntrega(req, res) {
+        try {
+            const id = req.params.id;
+            const entrega = await entregaModel.excluirEntrega(id);
+            if (!entrega) {
+                return res.status(404).json({ sucesso: 'alert', mensagem: 'Entrega não encontrada' });
             }
+
+            res.status(200).json({ sucesso: 'true', mensagem: 'Entrega excluída com sucesso', entrega });
+
+        } catch (error) {
+            res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao excluir entrega', erro: error.message });
         }
-        static async excluirTodasEntregas(req, res) {
-            try {
-                const entregas = await entregaModel.excluirTodasEntregas(); // exclui todas as entregas no banco de dados
-                if (!entregas) { // verifica se as entregas foram excluídas
-                    return res.status(400).json({ sucesso: 'alert', mensagem: 'Nenhuma entrega encontrada' });
-                }
-                res.status(200).json({ sucesso: 'true', mensagem: 'Entregas excluídas com sucesso', entregas: entregas });
-            } catch (error) {
-                res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao excluir entregas', erro: error.message });
+    },
+
+    async excluirTodasEntregas(req, res) {
+        try {
+            const entregas = await entregaModel.excluirTodasEntregas();
+            if (!entregas) {
+                return res.status(404).json({ sucesso: 'alert', mensagem: 'Nenhuma entrega encontrada' });
             }
+
+            res.status(200).json({ sucesso: 'true', mensagem: 'Todas as entregas foram excluídas', entregas });
+
+        } catch (error) {
+            res.status(500).json({ sucesso: 'false', mensagem: 'Erro ao excluir entregas', erro: error.message });
         }
     }
-    
-    module.exports = entregaController; // exporta o controller de entrega
+};
+
+// Exportação no formato CommonJS
+module.exports = entregaController;

@@ -37,7 +37,7 @@ Cada entrega deve conter as seguintes informações:
 | **Endereço de Coleta**  | Local onde a entrega deve ser coletada                           |
 | **Endereço de Destino**  | Local onde a entrega deve ser realizada                           |
 | **Data Prevista de Entrega** | Data e hora para a entrega ser realizada                     |
-| **Status**               | Estado atual da entrega (ex: "coletado", "em trânsito", "entregue") |
+| **Status**               | Estado atual da entrega (ex: 'pendente', 'coletado', 'em trânsito', 'entregue') |
 
 ---
 

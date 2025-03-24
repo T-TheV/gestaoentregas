@@ -1,27 +1,16 @@
-const express = require("express"); // Importar o express
-const dotenv = require("dotenv"); // Importar o dotenv
-const entregaRoute = require('./src/modules/entrega/routes/entregaRoute'); // Importar as rotas do módulo aluno
+const express = require("express");
+const dotenv = require("dotenv");
+const entregaRoute = require("./src/modules/entrega/routes/entregaRoute"); // Verifique se esse caminho está correto
 
-dotenv.config(); // Carregar as variáveis de ambiente
+dotenv.config();
 
-const port = process.env.PORTA || 3000; // Fallback para a porta 3000
+const port = process.env.PORTA; // Corrigindo o nome da variável de ambiente
 const app = express();
 
 app.use(express.json());
 
-// Registrar as rotas do módulo aluno
-app.use(entregaRoute);
-
-// Middleware para tratar rotas inexistentes
-app.use((req, res) => {
-    res.status(404).json({ error: "Rota não encontrada" });
-});
-
-// Middleware para tratar erros gerais
-app.use((erro, req, res) => {
-    console.error(erro.stack);
-    res.status(500).json({ erro: "Erro interno do servidor" });
-});
+// Registrar as rotas corretamente com um prefixo, por exemplo, "/api/entregas"
+app.use("/api/entregas", entregaRoute);
 
 // Iniciar o servidor
 app.listen(port, () => {
